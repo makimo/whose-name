@@ -14,6 +14,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $password = 'test';
+
+        $user = \App\Models\User::updateOrCreate(
+            [
+                'email' => 'test@makimo.pl'
+            ], [
+                'name' => 'test',
+                'password' => \Hash::make($password)
+            ]
+        );
+
+        $token = $user->createToken('whosename', ['whose-name']);
+
+        $this->command->info(
+            "Created user {$user->email} with password {$password} and token {$token->plainTextToken}"
+        );
     }
 }
