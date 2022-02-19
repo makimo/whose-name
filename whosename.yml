@@ -1,0 +1,7 @@
+# An example whosename file
+-
+  slack: U123456
+  jira: test@example.org
+-
+  slack: U234567
+  jira: other@example.org

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Domain\WhoseName\QueryService;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,19 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+
+Route::middleware('auth:sanctum', 'ability:whose-name')
+    ->prefix('whose-name')
+    ->group(function () {
+        Route::get('/query', function(Request $request, QueryService $service) {
+            $username = $service->whatIsTheNameOf(
+                $request->input('u', ''),
+                $request->input('s', ''),
+                $request->input('q', '')
+            );
+
+            return response()->json(['username' => $username]);
+        });
+    });
