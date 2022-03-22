@@ -49,24 +49,30 @@ class YamlFileRepository implements IdentityQueryRepository {
     }
 
     protected function load(): void {
-        $stat = stat($this->sourceFilePath);
+        $modificationTime = filemtime($this->sourceFilePath);
 
-        if(!$stat) {
+        if(!$modificationTime) {
             throw new \RuntimeException("Yaml file not found!");
         }
 
-        $timestamp = Cache::get($this->cacheKey('timestamp'), -1);
+        $cachedModificationTime = Cache::get($this->cacheKey('timestamp'), -1);
 
-        if($stat['mtime'] > $timestamp || !Cache::has($this->cacheKey('identities'))) {
+        $sourceFileNeedsReload =
+            $modificationTime > $cachedModificationTime
+            || !Cache::has($this->cacheKey('identities'));
+
+        if($sourceFileNeedsReload) {
             $this->identityMap = static::loadYamlFile($this->sourceFilePath);
-            $this->identityLookupMap = static::transformIdentityListToIndex($this->identityMap);
+            $this->identityLookupMap = static::transformIdentityListToIndex(
+                $this->identityMap
+            );
 
             Cache::put($this->cacheKey('identities'), [
                 $this->identityMap,
                 $this->identityLookupMap,
             ]);
 
-            Cache::put($this->cacheKey('timestamp'), $stat['mtime']);
+            Cache::put($this->cacheKey('timestamp'), $modificationTime);
 
             return;
         }
@@ -81,12 +87,19 @@ class YamlFileRepository implements IdentityQueryRepository {
         return "whosename.$this->prefix.$property";
     }
 
-    public function findByServiceAndUsername(string $service, string $username): Identity {
+    public function findByServiceAndUsername(
+        string $service, 
+        string $username
+    ): Identity {
         if(!$this->identityMap) {
             $this->load();
         }
 
-        if(!isset($this->identityLookupMap[$service]) || !isset($this->identityLookupMap[$service][$username])) {
+        $notFound = 
+            !isset($this->identityLookupMap[$service]) 
+            || !isset($this->identityLookupMap[$service][$username]);
+
+        if($notFound) {
             return new Identity([]);
         }
 
