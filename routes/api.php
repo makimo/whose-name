@@ -31,6 +31,9 @@ Route::middleware('auth:sanctum', 'ability:whose-name')
                 $request->input('q', '')
             );
 
-            return response()->json(['username' => $username]);
+            return response()->json(
+                ['username' => $username], 
+                $username === null ? 404: 200
+            );
         });
     });
