@@ -9,26 +9,19 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlFileRepository implements IdentityQueryRepository {
     protected
+        $prefix,
         $sourceFilePath,
         $identityMap = null,
         $identityLookupMap = null;
     
-    public function __construct() {
-        $path = config('whosename.yaml_file');
-
-        if(str_starts_with($path, '/')) {
-            $this->sourceFilePath = $path;
-        } else {
-            $this->sourceFilePath = base_path($path);
-        }
+    protected static function loadYamlFile(string $path): array {
+        return Yaml::parse(file_get_contents($path));
     }
 
-    protected function reloadAndCache() {
-        $identities = Yaml::parse(file_get_contents($this->sourceFilePath));
-        
+    protected static function transformIdentityListToIndex(array $list): array {
         $mapping = [];
 
-        foreach($identities as $index => $identity) {
+        foreach($list as $index => $identity) {
             foreach($identity as $service => $username) {
                 if(!isset($mapping[$service])) {
                     $mapping[$service] = [$username => $index];
@@ -38,35 +31,56 @@ class YamlFileRepository implements IdentityQueryRepository {
             }
         }
 
-        $data = [$identities, $mapping];
-
-        Cache::put('whosename.identities', $data);
-
-        return $data;
-
+        return $mapping;
     }
 
-    protected function load() {
+    public function __construct(?string $path = null) {
+        if(!$path) {
+            $path = config('whosename.yaml_file');
+        }
+
+        if(str_starts_with($path, '/')) {
+            $this->sourceFilePath = $path;
+        } else {
+            $this->sourceFilePath = base_path($path);
+        }
+
+        $this->prefix = hash("crc32b", $this->sourceFilePath);
+    }
+
+    public function load(): bool {
         $stat = stat($this->sourceFilePath);
 
         if(!$stat) {
-            throw new \Exception("Yaml file not found!");
+            throw new \RuntimeException("Yaml file not found!");
         }
 
-        $timestamp = Cache::get('whosename.yaml_timestamp', -1);
+        $timestamp = Cache::get($this->cacheKey('timestamp'), -1);
 
-        if($stat['mtime'] > $timestamp || !Cache::has('whosename.identities')) {
-            $identities = $this->reloadAndCache();
+        if($stat['mtime'] > $timestamp || !Cache::has($this->cacheKey('identities'))) {
+            $this->identityMap = static::loadYamlFile($this->sourceFilePath);
+            $this->identityLookupMap = static::transformIdentityListToIndex($this->identityMap);
 
-            Cache::put('whosename.yaml_timestamp', $stat['mtime']);
-        } else {
-            $identities = Cache::get('whosename.identities');
+            Cache::put($this->cacheKey('identities'), [
+                $this->identityMap,
+                $this->identityLookupMap,
+            ]);
+
+            Cache::put($this->cacheKey('timestamp'), $stat['mtime']);
+
+            return true;
         }
 
         list(
             $this->identityMap,
             $this->identityLookupMap
-        ) = $identities;
+        ) = Cache::get($this->cacheKey('identities'));
+
+        return false;
+    }
+
+    protected function cacheKey($property) {
+        return "whosename.$this->prefix.$property";
     }
 
     public function findByServiceAndUsername(string $service, string $username): Identity {
