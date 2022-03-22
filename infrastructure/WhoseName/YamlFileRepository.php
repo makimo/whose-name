@@ -48,7 +48,7 @@ class YamlFileRepository implements IdentityQueryRepository {
         $this->prefix = hash("crc32b", $this->sourceFilePath);
     }
 
-    public function load(): bool {
+    protected function load(): void {
         $stat = stat($this->sourceFilePath);
 
         if(!$stat) {
@@ -68,15 +68,13 @@ class YamlFileRepository implements IdentityQueryRepository {
 
             Cache::put($this->cacheKey('timestamp'), $stat['mtime']);
 
-            return true;
+            return;
         }
 
         list(
             $this->identityMap,
             $this->identityLookupMap
         ) = Cache::get($this->cacheKey('identities'));
-
-        return false;
     }
 
     protected function cacheKey($property) {

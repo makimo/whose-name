@@ -35,14 +35,45 @@ test('If there\'s no matching service/username, an empty Identity is returned', 
 test('Loaded Yaml file persists in the cache', function () {
     Cache::flush();
 
-    $repo = new YamlFileRepository($this->file);
-    $loadedFromFile = $repo->load();
+    $copiedFile = __DIR__ . '/../whosename.ignored.yml';
 
-    $anotherRepo = new YamlFileRepository($this->file);
-    $loadedForTheSecondTime = $anotherRepo->load();
+    // Arrange: Copy the file and set its modified and access time in the past
+    copy($this->file, $copiedFile);
 
-    expect($loadedFromFile)->toBeTrue();
-    expect($loadedForTheSecondTime)->toBeFalse();
+    $lastSecond = time() - 1;
+
+    touch($copiedFile, $lastSecond, $lastSecond);
+
+    // Assert the access time and modification time was set
+    // It hypothetically could fail on some strange file systems.
+    expect(filemtime($copiedFile))
+        ->toEqual(fileatime($copiedFile))
+        ->toEqual($lastSecond);
+
+    // Act: With cache emptied, first access will read the file
+    $repo = new YamlFileRepository($copiedFile);
+    $repo->findByServiceAndUsername('slack', 'U123456');
+
+    clearstatcache();
+
+    // Assert: the file was accessed so the times don't match anymore
+    expect(filemtime($copiedFile))
+        ->toBeLessThan(fileatime($copiedFile));
+
+    // Arrange: set times on the file in the past
+    touch($copiedFile, $lastSecond, $lastSecond);
+
+    // Act: With cache set by previous repo call
+    // second access doesn't read the file
+    $anotherRepo = new YamlFileRepository($copiedFile);
+    $anotherRepo->findByServiceAndUsername('slack', 'U123456');
+
+    clearstatcache();
+
+    // Assert: The atime did not change, because
+    // the file was not read the second time
+    expect(filemtime($copiedFile))
+        ->toEqual(fileatime($copiedFile));
 });
 
 
