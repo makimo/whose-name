@@ -3,6 +3,11 @@
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+
+uses(RefreshDatabase::class);
+
 
 test('Querying the WhoseName API returns requested usernames', function ($u, $s, $q, $r) {
     Sanctum::actingAs(
