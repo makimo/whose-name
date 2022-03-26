@@ -1,64 +1,86 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Whose-name
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Given a file of the following structure:
 
-## About Laravel
+```yml
+-
+  slack: U123456
+  jira: test@example.org
+-
+  slack: U234567
+  jira: other@example.org
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This service allows answering questions of the following form:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+> For one that calls themselves `test@example.org` on `jira`, what is their username on Slack? (Answer: `U123456`).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Glossary
 
-## Learning Laravel
+A set of usernames related to a person is called an **identity**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+cp .env.example .env
+docker run --rm --interactive --tty -v $(pwd):/app composer install
+./vendor/bin/sail up
+./vendor/bin/sail migrate
+./vendor/bin/sail db:seed
+```
 
-## Laravel Sponsors
+Note down the token given to you.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+For convenience, you can setup a [Bash Alias](https://laravel.com/docs/9.x/sail#configuring-a-bash-alias) for the Sail command.
 
-### Premium Partners
+## Usage
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```
+curl 'http://localhost/api/whose-name/query?u=test@example.org&s=jira&q=slack' \ 
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer <YOURTOKEN>"
+{"username":"U123456"}
+```
 
-## Contributing
+## Code
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Conventions
 
-## Code of Conduct
+This repository follows the following conventions:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- [Tests](tests) communicate purpose of the code
+- Domain separation into [domain](domain) logic, [infrastructure](infrastructure) and [application](routes/api.php) code
+  - Framework is a client of the domain, not the owner
+- [Architecture Decision Ledger](docs/adl) to communicate design decisions
 
-## Security Vulnerabilities
+### Structure
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+To get to know what does the code do, run the test suite:
 
-## License
+```
+./vendor/bin/sail test
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+See:
+
+- [tests/Unit](tests/Unit) and [tests/Feature](tests/Feature) for more information on how to use the codebase
+- [domain/WhoseName](domain/WhoseName) for domain objects. Specifically look for the Identity class.
+- [infrastructure/WhoseName](infrastructure/WhoseName) for a Yaml file persistence implementation
+- [routes/api.php](routes/api.php) for endpoint definitions
+- [docs/adl](docs/adl) for design decisions
+
+### Framework
+
+[Laravel](https://laravel.com/) is a web application framework with expressive, elegant syntax, written in PHP.
+
+Laravel has a thorough [documentation](https://laravel.com/docs) and video tutorial library, making it a breeze to get started with the framework.
+
+## Production
+
+A deploy workflow has been set up on the `main` branch for continuous deployment.
+
+See [.github/workflows/deploy.yml](.github/workflows/deploy.yml) for more information.
+
+The service is available under the [whosename.makimo.pl](https://whosename.makimo.pl) address.
+
+
