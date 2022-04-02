@@ -11,6 +11,7 @@
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.14",
         "laravel/tinker": "^2.7",
+        "spresnac/laravel-create-user-cli": "^1.0",
         "symfony/yaml": "^6.0"
     },
     "require-dev": {
