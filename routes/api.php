@@ -49,11 +49,15 @@ Route::post('/request-token', function(Request $request) {
             'token' => $token->plainTextToken,
             'title' => $tokenTitle,
             'abilities' => $tokenAbilities,
-        ]);
+        ], 201);
     }
 
     return response()->json([
-        'error' => true,
+        'errors' => [
+            'login' => [
+                'Email and password does not match'
+            ]
+        ],
         'message' => 'Username and password does not match',
     ], 401);
 });
