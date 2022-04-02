@@ -25,8 +25,8 @@ A set of usernames related to a person is called an **identity**.
 cp .env.example .env
 docker run --rm --interactive --tty -v $(pwd):/app composer install
 ./vendor/bin/sail up
-./vendor/bin/sail migrate
-./vendor/bin/sail db:seed
+./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan db:seed
 ```
 
 Note down the token given to you.
@@ -36,7 +36,7 @@ For convenience, you can setup a [Bash Alias](https://laravel.com/docs/9.x/sail#
 ## Usage
 
 ```
-curl 'http://localhost/api/whose-name/query?u=test@example.org&s=jira&q=slack' \ 
+curl 'http://localhost/api/whose-name/query?u=test@example.org&s=jira&q=slack' \
     -H "Accept: application/json" \
     -H "Authorization: Bearer <YOURTOKEN>"
 {"username":"U123456"}
