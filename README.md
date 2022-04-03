@@ -44,6 +44,8 @@ curl 'http://localhost/api/whose-name/query?u=test@example.org&s=jira&q=slack' \
 
 Note: the `Accept` header is important for all requests.
 
+See the [whose-name-client](https://github.com/makimo/whose-name-client) repository for a client of this API.
+
 ### Creating users and requesting tokens
 
 For your convenience, the `db:seed` command created a user for you with the following credentials:
@@ -129,3 +131,7 @@ To change or remove users, use `./artisan tinker` and play with `App\Models\User
 $user = App\Models\User::where('email', 'someone@example.org')->find();
 $user->delete();
 ```
+
+### Working with data
+
+The [whose-name-data](https://github.com/makimo/whose-name-data) handles all data for this service. See it's README for more information.
