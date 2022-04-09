@@ -52,7 +52,7 @@ For your convenience, the `db:seed` command created a user for you with the foll
 
 ```
 email: test@makimo.pl
-password: text
+password: test
 ```
 
 If you need to create another user, use the `user:create` Artisan command:
