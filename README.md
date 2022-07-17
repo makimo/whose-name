@@ -99,7 +99,7 @@ To get to know what does the code do, run the test suite:
 
 See:
 
-- [tests/Unit](tests/Unit) and [tests/Feature](tests/Feature) for more information on how to use the codebase
+- [tests](tests) for more information on how to use the codebase
 - [domain/WhoseName](domain/WhoseName) for domain objects. Specifically look for the Identity class.
 - [infrastructure/WhoseName](infrastructure/WhoseName) for a Yaml file persistence implementation
 - [routes/api.php](routes/api.php) for endpoint definitions

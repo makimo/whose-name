@@ -11,7 +11,8 @@
 |
 */
 
-uses(Tests\TestCase::class)->in('Feature');
+uses(Tests\TestCase::class)->in('Infrastructure');
+uses(Tests\TestCase::class)->in('Application');
 
 /*
 |--------------------------------------------------------------------------
