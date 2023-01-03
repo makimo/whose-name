@@ -21,10 +21,24 @@ A set of usernames related to a person is called an **identity**.
 
 ## Installation
 
+Run:
+
 ```
 cp .env.example .env
-docker run --rm --interactive --tty -v $(pwd):/app composer install
+docker run --rm --interactive --tty -v $(pwd):/app composer:2.1 install
+```
+
+> Note: `composer:2.1` pins the composer version according to this repo's `composer.lock` packages.
+
+To install vendor dependencies. Then, to boot the containers, use:
+
+```
 ./vendor/bin/sail up
+```
+
+While keeping the containers up (booted by `sail up` command), in the separate terminal window run:
+
+```
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan db:seed
 ```
