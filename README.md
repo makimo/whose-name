@@ -46,6 +46,18 @@ Note: the `Accept` header is important for all requests.
 
 See the [whose-name-client](https://github.com/makimo/whose-name-client) repository for a client of this API.
 
+### Changing the Yaml file
+
+By default, the project uses the `tests/whosename.yml` file. The file contains two users and is not suited for more extensive work or running a working copy of the API.
+
+If you'd like to change the path, modify the following entry in your `.env` file.
+
+```
+WHOSENAME_YAML=tests/whosename.yml
+```
+
+Because of Docker containers, the file must be located inside the repository.
+
 ### Creating users and requesting tokens
 
 For your convenience, the `db:seed` command created a user for you with the following credentials:
