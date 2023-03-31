@@ -108,6 +108,12 @@ This repository follows the following conventions:
 To get to know what does the code do, run the test suite:
 
 ```
+./vendor/bin/sail test --group usage,behavior
+```
+
+To see all tests, including edge case tests, run the complete test suite:
+
+```
 ./vendor/bin/sail test
 ```
 

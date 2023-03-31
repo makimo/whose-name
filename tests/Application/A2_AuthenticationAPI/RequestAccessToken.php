@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 
-test('A valid email, password and title yields an access token (as `token` in response JSON)', function () {
+gest('usage', 'A valid email, password and title yields an access token (as `token` in response JSON)', function () {
     $password = Str::random(16);
 
     $user = User::factory()->create([
@@ -38,7 +38,7 @@ test('A valid email, password and title yields an access token (as `token` in re
 
 });
 
-test('A whose-name ability on a token allows access to whose-name service', function () {
+gest('usage', 'A whose-name ability on a token allows access to whose-name service', function () {
     $user = User::factory()->create([
         'password' => Hash::make('test'),
     ]);
@@ -67,7 +67,7 @@ test('A whose-name ability on a token allows access to whose-name service', func
 });
 
 
-test('To request a token, email, password and title must be present', function () {
+gest('edge', 'To request a token, email, password and title must be present', function () {
     $response = $this->postJson('/api/request-token', [
         'email' => 'someone@example.org',
         'title' => 'Title',
@@ -108,7 +108,7 @@ test('To request a token, email, password and title must be present', function (
         );
 });
 
-test('If e-mail and password does not match database, a 401 error is returned', function() {
+gest('edge', 'If e-mail and password does not match database, a 401 error is returned', function() {
     $response = $this->postJson('/api/request-token', [
         'email' => 'someone@example.org',
         'title' => 'Title',

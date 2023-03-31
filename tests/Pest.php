@@ -40,7 +40,10 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Use this function to create a grouped test.
+ */
+function gest($group, $desc, $f)
 {
-    // ..
+    return test("[$group] $desc", $f)->group($group);
 }

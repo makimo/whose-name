@@ -11,7 +11,7 @@ beforeEach(function() {
 });
 
 
-test('Given a service name (e.g. GMail) and a username, a matching Identity can be found', function () {
+gest('usage', 'Given a service name (e.g. GMail) and a username, a matching Identity can be found', function () {
     $repo = new YamlFileRepository($this->file);
 
     $value = $repo->findByServiceAndUsername('slack', 'U123456');
@@ -23,7 +23,7 @@ test('Given a service name (e.g. GMail) and a username, a matching Identity can 
 });
 
 
-test('If there\'s no matching service/username, an empty Identity is returned', function () {
+gest('edge', 'If there\'s no matching service/username, an empty Identity is returned', function () {
     $repo = new YamlFileRepository($this->file);
 
     $value = $repo->findByServiceAndUsername('', '');
@@ -32,7 +32,7 @@ test('If there\'s no matching service/username, an empty Identity is returned', 
 });
 
 
-test('Loaded Yaml file persists in the cache', function () {
+gest('behavior', 'Loaded Yaml file persists in the cache', function () {
     Cache::flush();
 
     $copiedFile = __DIR__ . '/../whosename.ignored.yml';
@@ -77,7 +77,7 @@ test('Loaded Yaml file persists in the cache', function () {
 });
 
 
-test('Modifying Yaml file updates the cache', function () {
+gest('behavior', 'Modifying Yaml file updates the cache', function () {
     Cache::flush();
 
     $copiedFile = __DIR__ . '/../whosename.ignored.yml';
@@ -115,7 +115,7 @@ test('Modifying Yaml file updates the cache', function () {
 });
 
 
-test('If the file does not exist, a query throws an exception', function () {
+gest('edge', 'If the file does not exist, a query throws an exception', function () {
     $repo = new YamlFileRepository(__DIR__ . '/itdoesnotexist.yml');
 
     $repo->findByServiceAndUsername('slack', 'U123456');

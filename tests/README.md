@@ -27,3 +27,25 @@ To create a test, create an empty `.php` file inside one of the three directorie
 ### Naming tests
 
 XXX TODO
+
+### Grouping tests
+
+When writing tests, categorize them into one of the following three categories:
+
+- `usage`: Show examples of how a user can use the interface.
+- `edge`: Define edge cases of an interface (e.g. errors, exceptions, non-standard usage).
+- `behavior`: Explain additional behaviour that the code exhibits outside.
+
+Use the provided `gest` function for that (defined in `Pest.php` file).
+
+```php
+gest('usage', 'Given ID, status of something can be changed', function() {
+    // ...
+});
+```
+
+Tests can be then restricted to a specific group(s) for comprehension purposes
+
+```
+./vendor/bin/sail --group usage,behavior
+```

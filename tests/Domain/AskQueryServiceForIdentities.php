@@ -5,7 +5,7 @@ use Domain\WhoseName\IdentityQueryRepository;
 use Domain\WhoseName\Identity;
 
 
-test('Querying an existing user identity for a known service (e.g. GMail) returns username on that service', function () {
+gest('usage', 'Querying an existing user identity for a known service (e.g. GMail) returns username on that service', function () {
     $identity = new Identity([
         'jira' => 'test@makimo.pl',
         'slack' => 'U12345',
@@ -34,7 +34,7 @@ test('Querying an existing user identity for a known service (e.g. GMail) return
 });
 
 
-test('Querying an Identity for a not known service returns a null value', function () {
+gest('edge', 'Querying an Identity for a not known service returns a null value', function () {
     $identity = new Identity([
         'jira' => 'test@makimo.pl',
     ]);
@@ -52,7 +52,7 @@ test('Querying an Identity for a not known service returns a null value', functi
 });
 
 
-test('Querying a non-existent Identity for any service returns a null value', function () {
+gest('edge', 'Querying a non-existent Identity for any service returns a null value', function () {
     $identity = new Identity([]);
     
     $repo = Mockery::mock(IdentityQueryRepository::class);
@@ -68,7 +68,7 @@ test('Querying a non-existent Identity for any service returns a null value', fu
 });
 
 
-test('Querying an existing Identity for the same known service returns the same username as provided', function () {
+gest('edge', 'Querying an existing Identity for the same known service returns the same username as provided', function () {
     $identity = new Identity([
         'jira' => 'test@makimo.pl',
     ]);
