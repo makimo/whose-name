@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 
-test('Querying the WhoseName API returns requested usernames', function ($u, $s, $q, $r) {
+gest('usage', 'Querying the WhoseName API returns requested usernames', function ($u, $s, $q, $r) {
     Sanctum::actingAs(
         User::factory()->create(),
         ['whose-name']
@@ -27,7 +27,7 @@ test('Querying the WhoseName API returns requested usernames', function ($u, $s,
 ]);
 
 
-test('Querying the WhoseName API with not known data returns a null value', function () {
+gest('edge', 'Querying the WhoseName API with not known data returns a null value', function () {
     Sanctum::actingAs(
         User::factory()->create(),
         ['whose-name']
