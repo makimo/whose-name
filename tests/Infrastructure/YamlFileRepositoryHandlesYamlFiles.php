@@ -32,8 +32,6 @@ gest('edge', 'If there\'s no matching service/username, an empty Identity is ret
 });
 
 
-// XXX TODO: skip if reading file
-
 /**
  * Check if file's access time (atime) changes on successful read.
  *
@@ -104,8 +102,12 @@ gest('behavior', 'Loaded Yaml file persists in the cache', function () {
     expect(filemtime($copiedFile))
         ->toEqual(fileatime($copiedFile));
 })->skip(function() {
-    return !hasFileAtimeChangedOnRead($this->file);
-}, 'File System Issue: File access time does not change on read');
+    $copiedFile = __DIR__ . '/../whosename.ignored.yml';
+
+    copy($this->file, $copiedFile);
+
+    return !hasFileAtimeChangedOnRead($copiedFile);
+}, 'Skipped; filesystem does not support updating access time on read.');
 
 
 gest('behavior', 'Modifying Yaml file updates the cache', function () {
