@@ -27,11 +27,12 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           port: ${{ secrets.DEPLOY_PORT }}
           script: |
+            . ${{ secrets.BASH_ENV_FILE }}
             test -f ${{ secrets.DEPLOY_PATH }}/artisan && ${{ secrets.DEPLOY_PATH }}/artisan down || true
       - name: Copy files to the server
         uses: burnett01/rsync-deployments@5.2
         with:
-          switches: -avzr --delete --include-from=.github/workflows/rsync.include --exclude-from=.github/workflows/rsync.exclude
+          switches: -avzr --delete --delete-excluded --include-from=.github/workflows/rsync.include --exclude-from=.github/workflows/rsync.exclude
           remote_path: ${{ secrets.DEPLOY_PATH }}
           remote_host: ${{ secrets.DEPLOY_HOST }}
           remote_port: ${{ secrets.DEPLOY_PORT }}
@@ -45,8 +46,7 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           port: ${{ secrets.DEPLOY_PORT }}
           script: |
-            cp ${{ secrets.ENV_FILE }} ${{ secrets.DEPLOY_PATH }}/.env
+            . ${{ secrets.BASH_ENV_FILE }}
             ${{ secrets.DEPLOY_PATH }}/artisan migrate --force
             ${{ secrets.DEPLOY_PATH }}/artisan cache:clear
-            chmod -R 777 ${{ secrets.DEPLOY_PATH }}/storage
             ${{ secrets.DEPLOY_PATH }}/artisan up

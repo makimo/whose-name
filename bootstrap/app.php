@@ -17,6 +17,36 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
+| Environment
+|--------------------------------------------------------------------------
+|
+| Set the environment path and file. Allow for environment file to be defined
+| in another directory than the root of the project.
+|
+*/
+
+$getenv = function ($key, $default = null) {
+    if (isset($_SERVER[$key])) {
+        return $_SERVER[$key];
+    }
+
+    return getenv($key) ?: $default;
+};
+
+if ($environmentPath = $getenv('WHOSENAME_ENV_PATH')) {
+    $app->useEnvironmentPath($environmentPath);
+}
+
+if ($environmentFile = $getenv('WHOSENAME_ENV_FILE')) {
+    $app->loadEnvironmentFrom($environmentFile);
+}
+
+if ($storagePath = $getenv('WHOSENAME_STORAGE_PATH')) {
+    $app->useStoragePath($storagePath);
+}
+
+/*
+|--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
 |
