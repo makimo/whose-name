@@ -24,7 +24,6 @@ services:
         depends_on:
             - redis
             - meilisearch
-            - selenium
             - mariadb
     redis:
         image: 'redis:alpine'
@@ -63,13 +62,6 @@ services:
         ports:
             - '${FORWARD_MAILHOG_PORT:-1025}:1025'
             - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
-        networks:
-            - sail
-    selenium:
-        image: selenium/standalone-chrome
-        platform: linux/amd64
-        volumes:
-            - '/dev/shm:/dev/shm'
         networks:
             - sail
     mariadb:
