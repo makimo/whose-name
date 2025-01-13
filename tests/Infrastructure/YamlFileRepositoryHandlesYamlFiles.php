@@ -71,6 +71,8 @@ gest('behavior', 'Loaded Yaml file persists in the cache', function () {
 
     touch($copiedFile, $lastSecond, $lastSecond);
 
+    clearstatcache();
+
     // Assert the access time and modification time was set
     // It hypothetically could fail on some strange file systems.
     expect(filemtime($copiedFile))
