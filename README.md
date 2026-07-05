@@ -60,6 +60,34 @@ Note: the `Accept` header is important for all requests.
 
 See the [whose-name-client](https://github.com/makimo/whose-name-client) repository for a client of this API.
 
+### Batch query
+
+To resolve many identities in a single request, `POST` a list of queries to the
+`/api/whose-name/query/batch` endpoint. Each query is a `{"u","s","q"}` triple with
+the same meaning as the single query endpoint (`u` = known username, `s` = its service,
+`q` = the service you ask about).
+
+```
+curl -X POST 'http://localhost/api/whose-name/query/batch' \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer <YOURTOKEN>" \
+    -d '{"queries":[
+          {"u":"test@example.org","s":"jira","q":"slack"},
+          {"u":"other@example.org","s":"jira","q":"slack"},
+          {"u":"unknown","s":"unknown","q":"unknown"}
+        ]}'
+[{"username":"U123456"},{"username":"U234567"},{"username":null}]
+```
+
+The response is an array of `{"username": ...}` results in the **same order** as the
+queries, where `null` means no match was found. The endpoint returns:
+
+- `200 OK` when every query resolved to a username,
+- `207 Multi-Status` when at least one query returned `null`,
+- `422 Unprocessable Entity` when the request body is malformed (each query must
+  provide non-empty `u`, `s` and `q`; a batch may contain between 1 and 100 queries).
+
 ### Changing the Yaml file
 
 By default, the project uses the `tests/whosename.yml` file. The file contains two users and is not suited for more extensive work or running a working copy of the API.

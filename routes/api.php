@@ -74,8 +74,29 @@ Route::middleware('auth:sanctum', 'ability:whose-name')
             );
 
             return response()->json(
-                ['username' => $username], 
+                ['username' => $username],
                 $username === null ? 404: 200
             );
+        });
+
+        Route::post('/query/batch', function (Request $request, QueryService $service) {
+            $validated = $request->validate([
+                'queries'     => 'required|array|min:1|max:100',
+                'queries.*.u' => 'required|string',
+                'queries.*.s' => 'required|string',
+                'queries.*.q' => 'required|string',
+            ]);
+
+            $usernames = $service->whatAreTheNamesOf(array_map(fn ($query) => [
+                'username'     => $query['u'],
+                'service'      => $query['s'],
+                'askedService' => $query['q'],
+            ], $validated['queries']));
+
+            $results = array_map(fn ($username) => ['username' => $username], $usernames);
+
+            $allResolved = !in_array(null, $usernames, true);
+
+            return response()->json($results, $allResolved ? 200 : 207);
         });
     });
