@@ -115,6 +115,53 @@ found. The endpoint returns:
 - `422 Unprocessable Entity` when the request body is malformed (each query must
   provide non-empty `u`, `s` and `q`; a batch may contain between 1 and 100 queries).
 
+### Pools
+
+A **pool** is a named list of names sharing a single field (service). Pools live in
+their own file (`pools.yml` by default):
+
+```yml
+-
+  name: Everyone
+  field: email
+  names:
+    - michal@makimo.pl
+    - alice@makimo.pl
+```
+
+Both pool endpoints take `p` (the pool name) and `q` (the service you ask about).
+
+**Per-member** — `GET /api/whose-name/pool` resolves every member on the asked
+service and returns one `{"username": ...}` result per member, **in pool order**
+(same shape and status semantics as the batch query — a member may resolve to a
+string, an array of names, or `null`):
+
+```
+curl 'http://localhost/api/whose-name/pool?p=Everyone&q=jira' \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer <YOURTOKEN>"
+[{"username":"jira1"},{"username":["jira2","jira3"]}]
+```
+
+- `200 OK` when every member resolved,
+- `207 Multi-Status` when at least one member resolved to `null`,
+- `404 Not Found` (with `[]`) when the pool is unknown or has no members.
+
+When `q` is the pool's own field, the pool's names are returned verbatim.
+
+**Flattened** — `GET /api/whose-name/pool/names` returns the same answers flattened
+into a single, **distinct** list of names (arrays spread in, `null`s and duplicates
+dropped):
+
+```
+curl 'http://localhost/api/whose-name/pool/names?p=Everyone&q=jira' \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer <YOURTOKEN>"
+{"names":["jira1","jira2","jira3"]}
+```
+
+Returns `200 OK`, or `404 Not Found` (with `{"names":[]}`) when nothing was found.
+
 ### Changing the Yaml file
 
 By default, the project uses the `tests/whosename.yml` file. The file contains two users and is not suited for more extensive work or running a working copy of the API.
@@ -123,6 +170,13 @@ If you'd like to change the path, modify the following entry in your `.env` file
 
 ```
 WHOSENAME_YAML=tests/whosename.yml
+```
+
+Pools are read from a separate file, configured the same way (defaults to
+`tests/pools.yml`):
+
+```
+WHOSENAME_POOLS_YAML=tests/pools.yml
 ```
 
 Because of Docker containers, the file must be located inside the repository.
