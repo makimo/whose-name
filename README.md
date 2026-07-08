@@ -102,13 +102,15 @@ curl -X POST 'http://localhost/api/whose-name/query/batch' \
           {"u":"other@example.org","s":"jira","q":"slack"},
           {"u":"unknown","s":"unknown","q":"unknown"}
         ]}'
-[{"username":"U123456"},{"username":"U234567"},{"username":null}]
+[{"u":"test@example.org","s":"jira","q":"slack","a":"U123456"},
+ {"u":"other@example.org","s":"jira","q":"slack","a":"U234567"},
+ {"u":"unknown","s":"unknown","q":"unknown","a":null}]
 ```
 
-The response is an array of `{"username": ...}` results in the **same order** as the
-queries. As with the single endpoint, each `username` is a string, an array of
-strings (when the asked service holds several names), or `null` when no match was
-found. The endpoint returns:
+The response is an array of results in the **same order** as the queries. Each
+result **echoes its query** (`u`, `s`, `q`) and carries the answer in `a` — a
+string, an array of strings (when the asked service holds several names), or `null`
+when no match was found. The endpoint returns:
 
 - `200 OK` when every query resolved to a username,
 - `207 Multi-Status` when at least one query returned `null`,
@@ -132,15 +134,17 @@ their own file (`pools.yml` by default):
 Both pool endpoints take `p` (the pool name) and `q` (the service you ask about).
 
 **Per-member** — `GET /api/whose-name/pool` resolves every member on the asked
-service and returns one `{"username": ...}` result per member, **in pool order**
-(same shape and status semantics as the batch query — a member may resolve to a
-string, an array of names, or `null`):
+service and returns one result per member, **in pool order**, in the same
+`{u, s, q, a}` shape and with the same status semantics as the batch query. For a
+pool, `u` is the member's name, `s` the pool's field, `q` the asked service, and
+`a` the answer (a string, an array of names, or `null`):
 
 ```
 curl 'http://localhost/api/whose-name/pool?p=Everyone&q=jira' \
     -H "Accept: application/json" \
     -H "Authorization: Bearer <YOURTOKEN>"
-[{"username":"jira1"},{"username":["jira2","jira3"]}]
+[{"u":"michal@makimo.pl","s":"email","q":"jira","a":"jira1"},
+ {"u":"alice@makimo.pl","s":"email","q":"jira","a":["jira2","jira3"]}]
 ```
 
 - `200 OK` when every member resolved,
