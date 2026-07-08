@@ -9,15 +9,29 @@ Given a file of the following structure:
 -
   slack: U234567
   jira: other@example.org
+  email:
+    - other@example.org
+    - new@example.org
 ```
 
 This service answers questions of the following form:
 
 > For one that calls themselves `test@example.org` on `jira`, what is their username on Slack? (Answer: `U123456`).
 
+A field may hold **more than one name** for the same person — write it as a
+list, as `email` above. Then:
+
+- A lookup matches **any** of the listed names. Asking about the one who is
+  `other@example.org` _or_ `new@example.org` on `email` finds the same identity.
+- Asking _for_ a multi-name field returns the whole list. The Slack user
+  `U234567`'s `email` resolves to `["other@example.org", "new@example.org"]`.
+
 ## Glossary
 
 A set of usernames related to a person is called an **identity**.
+
+A field maps a service to one **name**, or to a list of names when a person
+uses several on that service.
 
 ## Installation
 
@@ -58,6 +72,17 @@ curl 'http://localhost/api/whose-name/query?u=test@example.org&s=jira&q=slack' \
 
 Note: the `Accept` header is important for all requests.
 
+The `username` field is a **string** when the asked service holds one name, an
+**array of strings** when it holds several, and `null` (with a `404`) when there
+is no match:
+
+```
+curl 'http://localhost/api/whose-name/query?u=U234567&s=slack&q=email' \
+    -H "Accept: application/json" \
+    -H "Authorization: Bearer <YOURTOKEN>"
+{"username":["other@example.org","new@example.org"]}
+```
+
 See the [whose-name-client](https://github.com/makimo/whose-name-client) repository for a client of this API.
 
 ### Batch query
@@ -81,7 +106,9 @@ curl -X POST 'http://localhost/api/whose-name/query/batch' \
 ```
 
 The response is an array of `{"username": ...}` results in the **same order** as the
-queries, where `null` means no match was found. The endpoint returns:
+queries. As with the single endpoint, each `username` is a string, an array of
+strings (when the asked service holds several names), or `null` when no match was
+found. The endpoint returns:
 
 - `200 OK` when every query resolved to a username,
 - `207 Multi-Status` when at least one query returned `null`,

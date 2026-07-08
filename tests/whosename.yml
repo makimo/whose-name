@@ -2,6 +2,10 @@
 -
   slack: U123456
   jira: test@example.org
+  email: single@example.org
 -
   slack: U234567
   jira: other@example.org
+  email:
+    - other@example.org
+    - new@example.org

@@ -22,10 +22,10 @@ class YamlFileRepository implements IdentityQueryRepository {
         $mapping = [];
 
         foreach($list as $index => $identity) {
-            foreach($identity as $service => $username) {
-                if(!isset($mapping[$service])) {
-                    $mapping[$service] = [$username => $index];
-                } else {
+            foreach($identity as $service => $usernames) {
+                // A service may hold a single name or a list of names.
+                // Index every name so a lookup matches any of them.
+                foreach((array) $usernames as $username) {
                     $mapping[$service][$username] = $index;
                 }
             }

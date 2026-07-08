@@ -34,6 +34,46 @@ gest('usage', 'Querying an existing user identity for a known service (e.g. GMai
 });
 
 
+gest('usage', 'Querying a service that holds several names returns all of them as a list', function () {
+    $identity = new Identity([
+        'slack' => 'U234567',
+        'email' => ['other@example.org', 'new@example.org'],
+    ]);
+
+    $repo = Mockery::mock(IdentityQueryRepository::class);
+
+    $service = new QueryService($repo);
+
+    $repo->shouldReceive('findByServiceAndUsername')
+        ->with('slack', 'U234567')
+        ->andReturn($identity);
+
+    $emails = $service->whatIsTheNameOf('U234567', 'slack', 'email');
+    expect($emails)->toBeArray()->toEqual(['other@example.org', 'new@example.org']);
+});
+
+
+gest('usage', 'An identity queried by one of its many names resolves other services', function () {
+    $identity = new Identity([
+        'slack' => 'U234567',
+        'email' => ['other@example.org', 'new@example.org'],
+    ]);
+
+    $repo = Mockery::mock(IdentityQueryRepository::class);
+
+    $service = new QueryService($repo);
+
+    // The repository is what knows every name maps to this identity;
+    // the service simply asks by whichever name it was given.
+    $repo->shouldReceive('findByServiceAndUsername')
+        ->with('email', 'new@example.org')
+        ->andReturn($identity);
+
+    $slackUsername = $service->whatIsTheNameOf('new@example.org', 'email', 'slack');
+    expect($slackUsername)->toBeString()->toEqual('U234567');
+});
+
+
 gest('edge', 'Querying an Identity for a not known service returns a null value', function () {
     $identity = new Identity([
         'jira' => 'test@makimo.pl',

@@ -23,6 +23,31 @@ gest('usage', 'Given a service name (e.g. GMail) and a username, a matching Iden
 });
 
 
+gest('usage', 'A service holding several names returns them as a list', function () {
+    $repo = new YamlFileRepository($this->file);
+
+    $value = $repo->findByServiceAndUsername('slack', 'U234567');
+
+    expect($value)
+        ->toBeInstanceOf(Identity::class)
+        ->username('email')->toEqual(['other@example.org', 'new@example.org']);
+});
+
+
+gest('usage', 'An Identity can be found by any one of the several names under a field', function () {
+    $repo = new YamlFileRepository($this->file);
+
+    foreach (['other@example.org', 'new@example.org'] as $email) {
+        $value = $repo->findByServiceAndUsername('email', $email);
+
+        expect($value)
+            ->toBeInstanceOf(Identity::class)
+            ->username('slack')->toEqual('U234567')
+            ->username('jira')->toEqual('other@example.org');
+    }
+});
+
+
 gest('edge', 'If there\'s no matching service/username, an empty Identity is returned', function () {
     $repo = new YamlFileRepository($this->file);
 
