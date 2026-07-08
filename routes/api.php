@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 use Domain\WhoseName\QueryService;
+use Domain\WhoseName\PoolService;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,5 +99,34 @@ Route::middleware('auth:sanctum', 'ability:whose-name')
             $allResolved = !in_array(null, $usernames, true);
 
             return response()->json($results, $allResolved ? 200 : 207);
+        });
+
+        Route::get('/pool', function (Request $request, PoolService $service) {
+            $responses = $service->whatAreTheNamesOf(
+                $request->input('p', ''),
+                $request->input('q', '')
+            );
+
+            $results = array_map(fn ($username) => ['username' => $username], $responses);
+
+            if (empty($results)) {
+                return response()->json($results, 404);
+            }
+
+            $allResolved = !in_array(null, $responses, true);
+
+            return response()->json($results, $allResolved ? 200 : 207);
+        });
+
+        Route::get('/pool/names', function (Request $request, PoolService $service) {
+            $names = $service->whoseNamesAreThere(
+                $request->input('p', ''),
+                $request->input('q', '')
+            );
+
+            return response()->json(
+                ['names' => $names],
+                empty($names) ? 404 : 200
+            );
         });
     });

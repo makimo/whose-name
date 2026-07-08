@@ -1,0 +1,26 @@
+# An example pools file, used by the testsuite.
+# Names line up with the identities in whosename.yml.
+-
+  name: Everyone
+  field: email
+  names:
+    - single@example.org
+    - other@example.org
+-
+  name: Slackers
+  field: slack
+  names:
+    - U123456
+    - U234567
+-
+  name: Mixed
+  field: email
+  names:
+    - single@example.org
+    - ghost@example.org
+-
+  name: Aliases
+  field: email
+  names:
+    - other@example.org
+    - new@example.org
