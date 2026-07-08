@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 
 use Domain\WhoseName\QueryService;
 use Domain\WhoseName\PoolService;
+use Domain\WhoseName\PoolQueryRepository;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,32 +89,45 @@ Route::middleware('auth:sanctum', 'ability:whose-name')
                 'queries.*.q' => 'required|string',
             ]);
 
-            $usernames = $service->whatAreTheNamesOf(array_map(fn ($query) => [
+            $answers = $service->whatAreTheNamesOf(array_map(fn ($query) => [
                 'username'     => $query['u'],
                 'service'      => $query['s'],
                 'askedService' => $query['q'],
             ], $validated['queries']));
 
-            $results = array_map(fn ($username) => ['username' => $username], $usernames);
+            $results = array_map(fn ($query, $answer) => [
+                'u' => $query['u'],
+                's' => $query['s'],
+                'q' => $query['q'],
+                'a' => $answer,
+            ], $validated['queries'], $answers);
 
-            $allResolved = !in_array(null, $usernames, true);
+            $allResolved = !in_array(null, $answers, true);
 
             return response()->json($results, $allResolved ? 200 : 207);
         });
 
-        Route::get('/pool', function (Request $request, PoolService $service) {
-            $responses = $service->whatAreTheNamesOf(
-                $request->input('p', ''),
-                $request->input('q', '')
-            );
+        Route::get('/pool', function (Request $request, PoolService $service, PoolQueryRepository $pools) {
+            $poolName = $request->input('p', '');
+            $askedService = $request->input('q', '');
 
-            $results = array_map(fn ($username) => ['username' => $username], $responses);
+            $pool = $pools->findByName($poolName);
+            $answers = $service->whatAreTheNamesOf($poolName, $askedService);
+
+            // Echo each member as a query (u = member, s = pool field,
+            // q = asked service) alongside its answer, like the batch endpoint.
+            $results = array_map(fn ($member, $answer) => [
+                'u' => $member,
+                's' => $pool->getField(),
+                'q' => $askedService,
+                'a' => $answer,
+            ], $pool->getNames(), $answers);
 
             if (empty($results)) {
                 return response()->json($results, 404);
             }
 
-            $allResolved = !in_array(null, $responses, true);
+            $allResolved = !in_array(null, $answers, true);
 
             return response()->json($results, $allResolved ? 200 : 207);
         });

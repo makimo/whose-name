@@ -1,6 +1,11 @@
 # Batch query returns 200/207 with a lean, index-correlated result array
 
-**Status:** _accepted_.
+**Status:** _superseded_ by
+[2026-07-08-batch-query-echoes-input.md](2026-07-08-batch-query-echoes-input.md)
+for the **response shape** — each result now echoes its query and carries the
+answer under `a` instead of a lean `{"username": ...}`. The **status-code and
+validation** decisions below (`200`/`207`/`422`, strict `1..100` items) still
+hold.
 
 ## Context
 

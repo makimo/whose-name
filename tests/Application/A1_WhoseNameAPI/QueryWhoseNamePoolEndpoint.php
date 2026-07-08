@@ -21,8 +21,8 @@ gest('usage', 'Querying a pool resolves each member on the asked service, 200 wh
 
     $response->assertStatus(200);
     $response->assertExactJson([
-        ['username' => 'single@example.org'],
-        ['username' => ['other@example.org', 'new@example.org']],
+        ['u' => 'U123456', 's' => 'slack', 'q' => 'email', 'a' => 'single@example.org'],
+        ['u' => 'U234567', 's' => 'slack', 'q' => 'email', 'a' => ['other@example.org', 'new@example.org']],
     ]);
 });
 
@@ -34,8 +34,8 @@ gest('usage', 'Querying a pool for its own field returns its names verbatim', fu
 
     $response->assertStatus(200);
     $response->assertExactJson([
-        ['username' => 'U123456'],
-        ['username' => 'U234567'],
+        ['u' => 'U123456', 's' => 'slack', 'q' => 'slack', 'a' => 'U123456'],
+        ['u' => 'U234567', 's' => 'slack', 'q' => 'slack', 'a' => 'U234567'],
     ]);
 });
 
@@ -50,8 +50,8 @@ gest('edge', 'A pool with a member that does not resolve returns 207 with a null
 
     $response->assertStatus(207);
     $response->assertExactJson([
-        ['username' => 'test@example.org'],
-        ['username' => null],
+        ['u' => 'single@example.org', 's' => 'email', 'q' => 'jira', 'a' => 'test@example.org'],
+        ['u' => 'ghost@example.org',  's' => 'email', 'q' => 'jira', 'a' => null],
     ]);
 });
 

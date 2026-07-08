@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 
-gest('usage', 'Batch querying returns 200 with a username per query, in order, when all resolve', function () {
+gest('usage', 'Batch querying echoes each query and returns 200 with its answer, in order, when all resolve', function () {
     Sanctum::actingAs(
         User::factory()->create(),
         ['whose-name']
@@ -24,8 +24,8 @@ gest('usage', 'Batch querying returns 200 with a username per query, in order, w
 
     $response->assertStatus(200);
     $response->assertExactJson([
-        ['username' => 'U123456'],
-        ['username' => 'other@example.org'],
+        ['u' => 'test@example.org', 's' => 'jira',  'q' => 'slack', 'a' => 'U123456'],
+        ['u' => 'U234567',          's' => 'slack', 'q' => 'jira',  'a' => 'other@example.org'],
     ]);
 });
 
@@ -45,8 +45,8 @@ gest('usage', 'Batch querying returns a list of names where a service holds seve
 
     $response->assertStatus(200);
     $response->assertExactJson([
-        ['username' => ['other@example.org', 'new@example.org']],
-        ['username' => 'U234567'],
+        ['u' => 'U234567',        's' => 'slack', 'q' => 'email', 'a' => ['other@example.org', 'new@example.org']],
+        ['u' => 'new@example.org', 's' => 'email', 'q' => 'slack', 'a' => 'U234567'],
     ]);
 });
 
@@ -66,8 +66,8 @@ gest('edge', 'Batch querying returns 207 with null for unknown entries alongside
 
     $response->assertStatus(207);
     $response->assertExactJson([
-        ['username' => 'U123456'],
-        ['username' => null],
+        ['u' => 'test@example.org', 's' => 'jira',    'q' => 'slack',   'a' => 'U123456'],
+        ['u' => 'unknown',          's' => 'unknown', 'q' => 'unknown', 'a' => null],
     ]);
 });
 
