@@ -30,6 +30,27 @@ gest('usage', 'Batch querying returns 200 with a username per query, in order, w
 });
 
 
+gest('usage', 'Batch querying returns a list of names where a service holds several', function () {
+    Sanctum::actingAs(
+        User::factory()->create(),
+        ['whose-name']
+    );
+
+    $response = $this->postJson('/api/whose-name/query/batch', [
+        'queries' => [
+            ['u' => 'U234567',        's' => 'slack', 'q' => 'email'],
+            ['u' => 'new@example.org', 's' => 'email', 'q' => 'slack'],
+        ],
+    ]);
+
+    $response->assertStatus(200);
+    $response->assertExactJson([
+        ['username' => ['other@example.org', 'new@example.org']],
+        ['username' => 'U234567'],
+    ]);
+});
+
+
 gest('edge', 'Batch querying returns 207 with null for unknown entries alongside found ones', function () {
     Sanctum::actingAs(
         User::factory()->create(),
